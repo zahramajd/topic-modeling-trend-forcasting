@@ -26,10 +26,11 @@ def bag_of_word_doc():
     return
 
 #TODO: topic discovery
-def topic_discovery():
-    return
-
 # assume that each doc contains keywords
+def topic_discovery(doc):
+    topics = doc.split('\n')
+    return topics
+
 def generate_topic_incidence_matrix(docs_per_year):
 
     topic_incidence_matrix = {}
@@ -38,10 +39,9 @@ def generate_topic_incidence_matrix(docs_per_year):
 
     for year in docs_topic_per_year:
         for i in range(len(docs_per_year[year])):
-            # tokenized is actually an array of the topics of a doc
-            tokenized = docs_topic_per_year[year][i].split('\n')
+            topics_of_doc = topic_discovery(docs_topic_per_year[year][i])
             docs_topic_per_year[year][i]= []
-            for t in tokenized:
+            for t in topics_of_doc:
                 topic = t.replace(' ','_')
                 docs_topic_per_year[year][i].append(topic)
                 
@@ -71,3 +71,4 @@ def topic_forecast():
 
 docs_per_year = read_documents()
 topic_incidence_matrix, topics, topic_incidence_matrix = generate_topic_incidence_matrix(docs_per_year)
+print(topic_incidence_matrix)
