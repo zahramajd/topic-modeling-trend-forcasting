@@ -55,9 +55,11 @@ def generate_topic_incidence_matrix(docs_per_year):
                 topic_incidence_matrix[topic][year] = topic_incidence_matrix[topic][year]+1
 
     for topic in topic_incidence_matrix:
-            for year in docs_topic_per_year:
-                if not year in topic_incidence_matrix[topic]:
-                    topic_incidence_matrix[topic][year] = 0
+        for year in docs_topic_per_year:
+            if not year in topic_incidence_matrix[topic]:
+                topic_incidence_matrix[topic][year] = 0
+
+        topic_incidence_matrix[topic] = dict(sorted(topic_incidence_matrix[topic].items()))
 
     return docs_topic_per_year, topics, topic_incidence_matrix
 
@@ -71,4 +73,3 @@ def topic_forecast():
 
 docs_per_year = read_documents()
 topic_incidence_matrix, topics, topic_incidence_matrix = generate_topic_incidence_matrix(docs_per_year)
-print(topic_incidence_matrix)
