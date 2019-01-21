@@ -1,5 +1,7 @@
 import glob
 import os
+import matplotlib.pyplot as plt
+
 
 def read_documents():
 
@@ -68,8 +70,16 @@ def generate_topic_correlation():
     return
 
 #TODO: topic trend forecasting
-def topic_forecast():
+def topic_forecast(topic_incidence_matrix):
+
+    def plot_topic_year(topic_year):
+        plt.plot(list(topic_year.keys()), list(topic_year.values()))
+        return
+
+    plot_topic_year(topic_incidence_matrix['Classification_algorithms'])
     return
 
 docs_per_year = read_documents()
 topic_incidence_matrix, topics, topic_incidence_matrix = generate_topic_incidence_matrix(docs_per_year)
+topic_forecast(topic_incidence_matrix)
+plt.show()
