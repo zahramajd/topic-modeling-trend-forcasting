@@ -72,11 +72,12 @@ def generate_topic_correlation():
 #TODO: topic trend forecasting
 def topic_forecast(topic_incidence_matrix):
 
-    def plot_topic_year(topic_year):
-        plt.plot(list(topic_year.keys()), list(topic_year.values()))
+    def plot_topic_year(topic_year_actual,topic_year_predicted):
+        plt.plot(list(topic_year_actual.keys()), list(topic_year_actual.values()), color='red')
+        plt.plot(list(topic_year_predicted.keys()), list(topic_year_predicted.values()), color='blue')
         return
 
-    plot_topic_year(topic_incidence_matrix['Classification_algorithms'])
+    plot_topic_year(topic_incidence_matrix['Classification_algorithms'],topic_incidence_matrix['Classification_algorithms'])
     return
 
 docs_per_year = read_documents()
