@@ -69,7 +69,10 @@ def generate_topic_incidence_matrix(docs_per_year):
 def generate_topic_correlation():
     return
 
-#TODO: topic trend forecasting
+#TODO: linear regression
+#TODO: support vector regression
+#TODO: ensemble
+
 def topic_forecast(topic_incidence_matrix):
 
     def plot_topic_year(topic_year_actual,topic_year_predicted):
@@ -77,7 +80,20 @@ def topic_forecast(topic_incidence_matrix):
         plt.plot(list(topic_year_predicted.keys()), list(topic_year_predicted.values()), color='blue')
         return
 
+    def linear_regression(topic_year_actual):
+        topic_year_predicted = {}
+        return topic_year_predicted
+
+    def support_vector_regression(topic_year_actual):
+        topic_year_predicted = {}
+        return topic_year_predicted
+
+    def ensemble(topic_year_actual):
+        topic_year_predicted = {}
+        return topic_year_predicted
+    
     plot_topic_year(topic_incidence_matrix['Classification_algorithms'],topic_incidence_matrix['Classification_algorithms'])
+    
     return
 
 docs_per_year = read_documents()
