@@ -9,13 +9,13 @@ from scipy.stats import pearsonr
 import pandas as pd
 from pandas import DataFrame
 
-
-#TODO: preprocessing
-#TODO: binary vector representation
-#TODO: topic discovery
 #TODO: ensemble
-#TODO: topic correlation
-
+#TODO: Single topic
+#TODO: Highest correlated
+#TODO: Highly correlated
+#TODO: Highest negatively correlated
+#TODO: Inversely correlated
+#TODO: Random topics
 
 def read_documents():
 
@@ -33,12 +33,6 @@ def read_documents():
                 f.close() 
     
     return docs_per_year
-
-def normalize():
-    return
-
-def bag_of_word_doc():
-    return
 
 def topic_discovery(doc):
     # assume that each doc contains keywords
