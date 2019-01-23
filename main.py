@@ -23,13 +23,14 @@ def read_documents():
     path = 'documents'
 
     for folder in os.listdir(path):
-        files=glob.glob(path+'/'+folder+'/*.txt')
-        docs_per_year[folder]=[]
-        for file in files:
-            f=open(file, 'r')  
-            c =f.read() 
-            docs_per_year[folder].append(c)
-            f.close() 
+        if(not folder=='.DS_Store'):
+            files=glob.glob(path+'/'+folder+'/*.txt')
+            docs_per_year[folder]=[]
+            for file in files:
+                f=open(file, 'r')  
+                c =f.read() 
+                docs_per_year[folder].append(c)
+                f.close() 
     
     return docs_per_year
 
@@ -41,6 +42,7 @@ def bag_of_word_doc():
 
 def topic_discovery(doc):
     # assume that each doc contains keywords
+    doc = doc.replace('; ','\n')
     topics = doc.split('\n')
     return topics
 
@@ -135,6 +137,6 @@ def topic_forecast(topic_incidence_matrix, topic):
 
 docs_per_year = read_documents()
 topic_incidence_matrix, topics, topic_incidence_matrix = generate_topic_incidence_matrix(docs_per_year)
-topic_correlations = generate_topic_correlation(topic_incidence_matrix, topic='Machine_learning_algorithms')
-# topic_forecast(topic_incidence_matrix,topic='Machine_learning_algorithms')
-# plt.show()
+#topic_correlations = generate_topic_correlation(topic_incidence_matrix, topic='Machine_learning_algorithms')
+topic_forecast(topic_incidence_matrix,topic='Aging')
+plt.show()
