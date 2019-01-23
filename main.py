@@ -5,6 +5,17 @@ from sklearn import linear_model
 from sklearn.metrics import mean_squared_error
 from sklearn.svm import SVR
 import numpy as np
+from scipy.stats import pearsonr
+import pandas as pd
+from pandas import DataFrame
+
+
+#TODO: preprocessing
+#TODO: binary vector representation
+#TODO: topic discovery
+#TODO: ensemble
+#TODO: topic correlation
+
 
 def read_documents():
 
@@ -22,17 +33,14 @@ def read_documents():
     
     return docs_per_year
 
-#TODO: preprocessing
 def normalize():
     return
 
-#TODO: binary vector representation
 def bag_of_word_doc():
     return
 
-#TODO: topic discovery
-# assume that each doc contains keywords
 def topic_discovery(doc):
+    # assume that each doc contains keywords
     topics = doc.split('\n')
     return topics
 
@@ -68,14 +76,16 @@ def generate_topic_incidence_matrix(docs_per_year):
 
     return docs_topic_per_year, topics, topic_incidence_matrix
 
-#TODO: temporal topic correlation
-def generate_topic_correlation():
-    return
+def generate_topic_correlation(topic_incidence_matrix, topic):
+    topic_correlations = []
+    for another_topic in topic_incidence_matrix:
+        if not another_topic == topic:
+            corr, p = pearsonr(list(topic_incidence_matrix[topic].values()),list(topic_incidence_matrix[another_topic].values()))
+            topic_correlations.append((another_topic,corr))
+    
+    return topic_correlations
 
-#TODO: support vector regression
-#TODO: ensemble
-
-def topic_forecast(topic_incidence_matrix):
+def topic_forecast(topic_incidence_matrix, topic):
 
     def plot_topic_year(topic_year_actual,topic_year_predicted):
         plt.plot(list(topic_year_actual.keys()), list(topic_year_actual.values()), color='red')
@@ -118,12 +128,13 @@ def topic_forecast(topic_incidence_matrix):
         topic_year_predicted = {}
         return topic_year_predicted
     
-    topic_year_predicted = support_vector_regression(topic_incidence_matrix['Machine_learning_algorithms'])
-    plot_topic_year(topic_incidence_matrix['Machine_learning_algorithms'],topic_year_predicted)
+    topic_year_predicted = support_vector_regression(topic_incidence_matrix[topic])
+    plot_topic_year(topic_incidence_matrix[topic],topic_year_predicted)
     
     return
 
 docs_per_year = read_documents()
 topic_incidence_matrix, topics, topic_incidence_matrix = generate_topic_incidence_matrix(docs_per_year)
-topic_forecast(topic_incidence_matrix)
-plt.show()
+topic_correlations = generate_topic_correlation(topic_incidence_matrix, topic='Machine_learning_algorithms')
+# topic_forecast(topic_incidence_matrix,topic='Machine_learning_algorithms')
+# plt.show()
