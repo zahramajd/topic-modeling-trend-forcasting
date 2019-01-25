@@ -138,11 +138,9 @@ def topic_forecast(topic_incidence_matrix, topic, other_topics_per_year, level):
 
     def linear_regression(topic_year_actual, other_topics_per_year, level):
         topic_year_predicted = {}
-
         if level=='single':
             years = []
             years_ = []
-
             for year in topic_year_actual:
                 if len(years)>1 :
                     regr = linear_model.LinearRegression()
@@ -155,33 +153,50 @@ def topic_forecast(topic_incidence_matrix, topic, other_topics_per_year, level):
                 years_.append(year)
         
         if level=='multi':
+            xs = []
+            years_ = []
+            for year in topic_year_actual:
+                if len(xs)>1 :
+                    regr = linear_model.LinearRegression()
+                    regr.fit(np.array(xs), np.array([topic_year_actual[k] for k in years_ if k in topic_year_actual]))
+                    topic_year_predicted[year] = regr.predict(np.array([other_topics_per_year[year]]))
+                    if topic_year_predicted[year] < 0 :
+                        topic_year_predicted[year] = 0
+
+                xs.append(other_topics_per_year[year])
+                years_.append(year)
+
+        return topic_year_predicted
+
+    def support_vector_regression(topic_year_actual, other_topics_per_year, level):
+        topic_year_predicted = {}
+        if level=='single':
             years = []
+            years_ = []
             for year in topic_year_actual:
                 if len(years)>1 :
-                    regr = linear_model.LinearRegression()
-                    regr.fit(np.array(years), np.array([topic_year_actual[k] for k in years_ if k in topic_year_actual]))
-                    topic_year_predicted[year] = regr.predict(np.array([[float(year)]]))
+                    clf = SVR(gamma='scale', C=1.0, epsilon=0.2)
+                    clf.fit(np.array(years), np.array([topic_year_actual[k] for k in years_ if k in topic_year_actual]))
+                    topic_year_predicted[year] = clf.predict(np.array([[float(year)]]))
                     if topic_year_predicted[year] < 0 :
                         topic_year_predicted[year] = 0
 
                 years.append([float(year)])
-
-
-        return topic_year_predicted
-
-    def support_vector_regression(topic_year_actual):
-        topic_year_predicted = {}
-        years = []
-        years_ = []
+                years_.append(year)
         
-        for year in topic_year_actual:
-            if len(years)>1 :
-                clf = SVR(gamma='scale', C=1.0, epsilon=0.2)
-                clf.fit(np.array(years), np.array([topic_year_actual[k] for k in years_ if k in topic_year_actual]))
-                topic_year_predicted[year] = clf.predict(np.array([[float(year)]]))
+        if level=='multi':
+            xs = []
+            years_ = []
+            for year in topic_year_actual:
+                if len(xs)>1 :
+                    clf = SVR(gamma='scale', C=1.0, epsilon=0.2)
+                    clf.fit(np.array(xs), np.array([topic_year_actual[k] for k in years_ if k in topic_year_actual]))
+                    topic_year_predicted[year] = clf.predict(np.array([other_topics_per_year[year]]))
+                    if topic_year_predicted[year] < 0 :
+                        topic_year_predicted[year] = 0
 
-            years.append([float(year)])
-            years_.append(year)
+                xs.append(other_topics_per_year[year])
+                years_.append(year)
 
         return topic_year_predicted
 
@@ -205,14 +220,14 @@ def topic_forecast(topic_incidence_matrix, topic, other_topics_per_year, level):
         return mse, mae, rmse
 
     
-    topic_year_predicted = linear_regression(topic_incidence_matrix[topic], other_topics_per_year=other_topics_per_year, level=level)
+    topic_year_predicted = support_vector_regression(topic_incidence_matrix[topic], other_topics_per_year=other_topics_per_year, level=level)
     plot_topic_year(topic_incidence_matrix[topic],topic_year_predicted)
-    evaluate(topic_incidence_matrix[topic],topic_year_predicted)
+    # evaluate(topic_incidence_matrix[topic],topic_year_predicted)
     
     return
 
 topic='Anthracofibrosis'
-scenario='highest_correlated'
+scenario='highly_correlated'
 
 docs_per_year = read_documents()
 
@@ -220,12 +235,12 @@ docs_topic_per_year, topics, topic_incidence_matrix = generate_topic_incidence_m
 
 topic_correlations = generate_topic_correlation(topic_incidence_matrix, topic)
 
-other_topics_per_year = generate_other_topics(topic_correlations, topic, topic_incidence_matrix, scenario='highly_correlated')
+other_topics_per_year = generate_other_topics(topic_correlations, topic, topic_incidence_matrix, scenario=scenario)
 
 if(scenario == 'single_topic'):
     level = 'single'
 else : level = 'multi'
 
-# topic_forecast(topic_incidence_matrix, topic, other_topics_per_year, level)
+topic_forecast(topic_incidence_matrix, topic, other_topics_per_year, level)
 
-# plt.show()
+plt.show()
