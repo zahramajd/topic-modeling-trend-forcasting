@@ -2,14 +2,12 @@ import glob
 import os
 import matplotlib.pyplot as plt
 from sklearn import linear_model
-from sklearn.metrics import mean_squared_error
+from sklearn.metrics import mean_squared_error, mean_absolute_error
 from sklearn.svm import SVR
 import numpy as np
 from scipy.stats import pearsonr
 
 #TODO: run 6 scenario
-#TODO: MSE
-
 
 def read_documents():
 
@@ -178,8 +176,18 @@ def topic_forecast(topic_incidence_matrix, topic, other_topics):
 
         return topic_year_predicted
     
+    def evaluate(topic_year_actual,topic_year_predicted):
+        
+        mse = mean_squared_error(list(topic_year_actual.values())[2:], list(topic_year_predicted.values()))
+        mae = mean_absolute_error(list(topic_year_actual.values())[2:], list(topic_year_predicted.values()))
+        rmse = mse**(1/2)
+
+        return mse, mae, rmse
+
+    
     topic_year_predicted = linear_regression(topic_incidence_matrix[topic])
     plot_topic_year(topic_incidence_matrix[topic],topic_year_predicted)
+    evaluate(topic_incidence_matrix[topic],topic_year_predicted)
     
     return
 
@@ -195,4 +203,4 @@ other_topics = generate_other_topics(topic_correlations, topic, scenario='single
 
 topic_forecast(topic_incidence_matrix, topic, other_topics)
 
-plt.show()
+# plt.show()
