@@ -9,7 +9,6 @@ from scipy.stats import pearsonr
 
 #TODO: run 6 scenario
 #TODO: MSE
-#TODO: debug lr
 
 
 def read_documents():
@@ -144,6 +143,8 @@ def topic_forecast(topic_incidence_matrix, topic, other_topics):
                 regr = linear_model.LinearRegression()
                 regr.fit(np.array(years), np.array([topic_year_actual[k] for k in years_ if k in topic_year_actual]))
                 topic_year_predicted[year] = regr.predict(np.array([[float(year)]]))
+                if topic_year_predicted[year] < 0 :
+                    topic_year_predicted[year] = 0
 
             years.append([float(year)])
             years_.append(year)
@@ -177,12 +178,12 @@ def topic_forecast(topic_incidence_matrix, topic, other_topics):
 
         return topic_year_predicted
     
-    topic_year_predicted = ensemble(topic_incidence_matrix[topic])
+    topic_year_predicted = linear_regression(topic_incidence_matrix[topic])
     plot_topic_year(topic_incidence_matrix[topic],topic_year_predicted)
     
     return
 
-topic='Lung_cancer'
+topic='Anthracofibrosis'
 
 docs_per_year = read_documents()
 
