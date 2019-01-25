@@ -6,11 +6,12 @@ from sklearn.metrics import mean_squared_error
 from sklearn.svm import SVR
 import numpy as np
 from scipy.stats import pearsonr
-import pandas as pd
-from pandas import DataFrame
 
-#TODO: ensemble
+#TODO: random
+#TODO: run 6 scenario
 #TODO: MSE
+#TODO: ensemble
+
 
 def read_documents():
 
@@ -123,9 +124,8 @@ def generate_other_topics(topic_correlations, topic, scenario):
                 other_topics.append(topic[0])
 
     if(scenario == 'random'):
-        other_topics = []
+        other_topics = list(np.random.choice([t[0] for t in topic_correlations], 5, replace=False))
 
-    print(other_topics)
     return other_topics
 
 def topic_forecast(topic_incidence_matrix, topic, other_topics):
@@ -184,7 +184,7 @@ topic_incidence_matrix, topics, topic_incidence_matrix = generate_topic_incidenc
 
 topic_correlations = generate_topic_correlation(topic_incidence_matrix, topic)
 
-other_topics = generate_other_topics(topic_correlations, topic, scenario='inversely_correlated')
+other_topics = generate_other_topics(topic_correlations, topic, scenario='random')
 
 topic_forecast(topic_incidence_matrix, topic, other_topics)
 
