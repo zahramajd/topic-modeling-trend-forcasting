@@ -78,27 +78,36 @@ def generate_topic_correlation(topic_incidence_matrix, topic):
 
 def generate_other_topics(topic_correlations, topic, scenario):
 
-    other_topics = {}
+    other_topics = []
 
     if(scenario == 'single_topic'):
-        other_topics = {}
+        other_topics = []
 
     if(scenario == 'highest_correlated'):
-        other_topics = {}
+        tmp = -1
+        highest = ()
+        for topic in topic_correlations:
+            if( topic[1] > tmp):
+                tmp = topic[1]
+                highest = topic
+        
+        other_topics.append(highest[0])
 
+    # threshold = 0.5
     if(scenario == 'highly_correlated'):
-        other_topics = {}
+        other_topics = []
 
     if(scenario == 'highest_negatively_correlated'):
-        other_topics = {}
+        other_topics = []
 
+    # threshold = -0.3
     if(scenario == 'inversely_correlated'):
-        other_topics = {}
+        other_topics = []
 
     if(scenario == 'random'):
-        other_topics = {}
-        
+        other_topics = []
 
+    print(other_topics)
     return other_topics
 
 def topic_forecast(topic_incidence_matrix, topic, other_topics):
@@ -161,4 +170,4 @@ other_topics = generate_other_topics(topic_correlations, topic, scenario='highes
 
 topic_forecast(topic_incidence_matrix, topic, other_topics)
 
-plt.show()
+# plt.show()
