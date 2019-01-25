@@ -7,10 +7,9 @@ from sklearn.svm import SVR
 import numpy as np
 from scipy.stats import pearsonr
 
-#TODO: random
 #TODO: run 6 scenario
 #TODO: MSE
-#TODO: ensemble
+#TODO: debug lr
 
 
 def read_documents():
@@ -169,9 +168,16 @@ def topic_forecast(topic_incidence_matrix, topic, other_topics):
 
     def ensemble(topic_year_actual):
         topic_year_predicted = {}
+
+        lr_result = linear_regression(topic_year_actual)
+        svr_result = support_vector_regression(topic_year_actual)
+
+        for year in lr_result:
+            topic_year_predicted[year] = (lr_result[year] + svr_result[year]) / 2
+
         return topic_year_predicted
     
-    topic_year_predicted = support_vector_regression(topic_incidence_matrix[topic])
+    topic_year_predicted = ensemble(topic_incidence_matrix[topic])
     plot_topic_year(topic_incidence_matrix[topic],topic_year_predicted)
     
     return
@@ -184,8 +190,8 @@ topic_incidence_matrix, topics, topic_incidence_matrix = generate_topic_incidenc
 
 topic_correlations = generate_topic_correlation(topic_incidence_matrix, topic)
 
-other_topics = generate_other_topics(topic_correlations, topic, scenario='random')
+other_topics = generate_other_topics(topic_correlations, topic, scenario='single_topic')
 
 topic_forecast(topic_incidence_matrix, topic, other_topics)
 
-# plt.show()
+plt.show()
