@@ -115,9 +115,12 @@ def generate_other_topics(topic_correlations, topic, scenario):
 
         other_topics.append(highest[0])
 
-    # threshold = -0.3
     if(scenario == 'inversely_correlated'):
+        threshold = -0.3
         other_topics = []
+        for topic in topic_correlations:
+            if(topic[1] < threshold):
+                other_topics.append(topic[0])
 
     if(scenario == 'random'):
         other_topics = []
@@ -181,7 +184,7 @@ topic_incidence_matrix, topics, topic_incidence_matrix = generate_topic_incidenc
 
 topic_correlations = generate_topic_correlation(topic_incidence_matrix, topic)
 
-other_topics = generate_other_topics(topic_correlations, topic, scenario='highly_correlated')
+other_topics = generate_other_topics(topic_correlations, topic, scenario='inversely_correlated')
 
 topic_forecast(topic_incidence_matrix, topic, other_topics)
 
