@@ -200,11 +200,11 @@ def topic_forecast(topic_incidence_matrix, topic, other_topics_per_year, level):
 
         return topic_year_predicted
 
-    def ensemble(topic_year_actual):
+    def ensemble(topic_year_actual, other_topics_per_year, level):
         topic_year_predicted = {}
 
-        lr_result = linear_regression(topic_year_actual)
-        svr_result = support_vector_regression(topic_year_actual)
+        lr_result = linear_regression(topic_year_actual, other_topics_per_year, level)
+        svr_result = support_vector_regression(topic_year_actual, other_topics_per_year, level)
 
         for year in lr_result:
             topic_year_predicted[year] = (lr_result[year] + svr_result[year]) / 2
@@ -220,9 +220,9 @@ def topic_forecast(topic_incidence_matrix, topic, other_topics_per_year, level):
         return mse, mae, rmse
 
     
-    topic_year_predicted = support_vector_regression(topic_incidence_matrix[topic], other_topics_per_year=other_topics_per_year, level=level)
+    topic_year_predicted = ensemble(topic_incidence_matrix[topic], other_topics_per_year=other_topics_per_year, level=level)
     plot_topic_year(topic_incidence_matrix[topic],topic_year_predicted)
-    # evaluate(topic_incidence_matrix[topic],topic_year_predicted)
+    evaluate(topic_incidence_matrix[topic],topic_year_predicted)
     
     return
 
