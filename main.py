@@ -10,12 +10,7 @@ import pandas as pd
 from pandas import DataFrame
 
 #TODO: ensemble
-#TODO: Single topic
-#TODO: Highest correlated
-#TODO: Highly correlated
-#TODO: Highest negatively correlated
-#TODO: Inversely correlated
-#TODO: Random topics
+#TODO: MSE
 
 def read_documents():
 
@@ -81,7 +76,32 @@ def generate_topic_correlation(topic_incidence_matrix, topic):
     
     return topic_correlations
 
-def topic_forecast(topic_incidence_matrix, topic):
+def generate_other_topics(topic_correlations, topic, scenario):
+
+    other_topics = {}
+
+    if(scenario == 'single_topic'):
+        other_topics = {}
+
+    if(scenario == 'highest_correlated'):
+        other_topics = {}
+
+    if(scenario == 'highly_correlated'):
+        other_topics = {}
+
+    if(scenario == 'highest_negatively_correlated'):
+        other_topics = {}
+
+    if(scenario == 'inversely_correlated'):
+        other_topics = {}
+
+    if(scenario == 'random'):
+        other_topics = {}
+        
+
+    return other_topics
+
+def topic_forecast(topic_incidence_matrix, topic, other_topics):
 
     def plot_topic_year(topic_year_actual,topic_year_predicted):
         plt.plot(list(topic_year_actual.keys()), list(topic_year_actual.values()), color='red')
@@ -129,8 +149,16 @@ def topic_forecast(topic_incidence_matrix, topic):
     
     return
 
+topic='Lung_cancer'
+
 docs_per_year = read_documents()
+
 topic_incidence_matrix, topics, topic_incidence_matrix = generate_topic_incidence_matrix(docs_per_year)
-#topic_correlations = generate_topic_correlation(topic_incidence_matrix, topic='Machine_learning_algorithms')
-topic_forecast(topic_incidence_matrix,topic='Aging')
+
+topic_correlations = generate_topic_correlation(topic_incidence_matrix, topic)
+
+other_topics = generate_other_topics(topic_correlations, topic, scenario='highest_correlated')
+
+topic_forecast(topic_incidence_matrix, topic, other_topics)
+
 plt.show()
