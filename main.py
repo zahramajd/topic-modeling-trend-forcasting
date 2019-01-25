@@ -7,7 +7,6 @@ from sklearn.svm import SVR
 import numpy as np
 from scipy.stats import pearsonr
 
-#TODO: run 6 scenario
 
 def read_documents():
 
@@ -78,7 +77,7 @@ def generate_topic_correlation(topic_incidence_matrix, topic):
     
     return topic_correlations
 
-def generate_other_topics(topic_correlations, topic, scenario):
+def generate_other_topics(topic_correlations, topic, topic_incidence_matrix, scenario):
 
     other_topics = []
 
@@ -88,64 +87,85 @@ def generate_other_topics(topic_correlations, topic, scenario):
     if(scenario == 'highest_correlated'):
         tmp = -1
         highest = ()
-        for topic in topic_correlations:
-            if( topic[1] > tmp):
-                tmp = topic[1]
-                highest = topic
+        for t in topic_correlations:
+            if( t[1] > tmp):
+                tmp = t[1]
+                highest = t
         
         other_topics.append(highest[0])
 
     if(scenario == 'highly_correlated'):
         threshold = 0.5
         other_topics = []
-        for topic in topic_correlations:
-            if(topic[1] > threshold):
-                other_topics.append(topic[0])
+        for t in topic_correlations:
+            if(t[1] > threshold):
+                other_topics.append(t[0])
 
     if(scenario == 'highest_negatively_correlated'):
         tmp = 1
         highest = ()
-        for topic in topic_correlations:
-            if( topic[1] < tmp):
-                tmp = topic[1]
-                highest = topic
+        for t in topic_correlations:
+            if( t[1] < tmp):
+                tmp = t[1]
+                highest = t
 
         other_topics.append(highest[0])
 
     if(scenario == 'inversely_correlated'):
         threshold = -0.3
         other_topics = []
-        for topic in topic_correlations:
-            if(topic[1] < threshold):
-                other_topics.append(topic[0])
+        for t in topic_correlations:
+            if(t[1] < threshold):
+                other_topics.append(t[0])
 
     if(scenario == 'random'):
         other_topics = list(np.random.choice([t[0] for t in topic_correlations], 5, replace=False))
 
-    return other_topics
+    other_topics_per_year = {}
+    for year in topic_incidence_matrix[topic]:
+        other_topics_per_year[year] = []
+        for tp in other_topics:
+            other_topics_per_year[year].append(topic_incidence_matrix[tp][year])
 
-def topic_forecast(topic_incidence_matrix, topic, other_topics):
+    return  other_topics_per_year
+
+def topic_forecast(topic_incidence_matrix, topic, other_topics_per_year, level):
 
     def plot_topic_year(topic_year_actual,topic_year_predicted):
         plt.plot(list(topic_year_actual.keys()), list(topic_year_actual.values()), color='red')
         plt.plot(list(topic_year_predicted.keys()), list(topic_year_predicted.values()), color='blue')
         return
 
-    def linear_regression(topic_year_actual):
+    def linear_regression(topic_year_actual, other_topics_per_year, level):
         topic_year_predicted = {}
-        years = []
-        years_ = []
 
-        for year in topic_year_actual:
-            if len(years)>1 :
-                regr = linear_model.LinearRegression()
-                regr.fit(np.array(years), np.array([topic_year_actual[k] for k in years_ if k in topic_year_actual]))
-                topic_year_predicted[year] = regr.predict(np.array([[float(year)]]))
-                if topic_year_predicted[year] < 0 :
-                    topic_year_predicted[year] = 0
+        if level=='single':
+            years = []
+            years_ = []
 
-            years.append([float(year)])
-            years_.append(year)
+            for year in topic_year_actual:
+                if len(years)>1 :
+                    regr = linear_model.LinearRegression()
+                    regr.fit(np.array(years), np.array([topic_year_actual[k] for k in years_ if k in topic_year_actual]))
+                    topic_year_predicted[year] = regr.predict(np.array([[float(year)]]))
+                    if topic_year_predicted[year] < 0 :
+                        topic_year_predicted[year] = 0
+
+                years.append([float(year)])
+                years_.append(year)
+        
+        if level=='multi':
+            years = []
+            for year in topic_year_actual:
+                if len(years)>1 :
+                    regr = linear_model.LinearRegression()
+                    regr.fit(np.array(years), np.array([topic_year_actual[k] for k in years_ if k in topic_year_actual]))
+                    topic_year_predicted[year] = regr.predict(np.array([[float(year)]]))
+                    if topic_year_predicted[year] < 0 :
+                        topic_year_predicted[year] = 0
+
+                years.append([float(year)])
+
 
         return topic_year_predicted
 
@@ -185,22 +205,27 @@ def topic_forecast(topic_incidence_matrix, topic, other_topics):
         return mse, mae, rmse
 
     
-    topic_year_predicted = linear_regression(topic_incidence_matrix[topic])
+    topic_year_predicted = linear_regression(topic_incidence_matrix[topic], other_topics_per_year=other_topics_per_year, level=level)
     plot_topic_year(topic_incidence_matrix[topic],topic_year_predicted)
     evaluate(topic_incidence_matrix[topic],topic_year_predicted)
     
     return
 
 topic='Anthracofibrosis'
+scenario='highest_correlated'
 
 docs_per_year = read_documents()
 
-topic_incidence_matrix, topics, topic_incidence_matrix = generate_topic_incidence_matrix(docs_per_year)
+docs_topic_per_year, topics, topic_incidence_matrix = generate_topic_incidence_matrix(docs_per_year)
 
 topic_correlations = generate_topic_correlation(topic_incidence_matrix, topic)
 
-other_topics = generate_other_topics(topic_correlations, topic, scenario='single_topic')
+other_topics_per_year = generate_other_topics(topic_correlations, topic, topic_incidence_matrix, scenario='highly_correlated')
 
-topic_forecast(topic_incidence_matrix, topic, other_topics)
+if(scenario == 'single_topic'):
+    level = 'single'
+else : level = 'multi'
+
+# topic_forecast(topic_incidence_matrix, topic, other_topics_per_year, level)
 
 # plt.show()
