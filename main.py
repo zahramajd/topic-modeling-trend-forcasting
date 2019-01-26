@@ -129,7 +129,7 @@ def generate_other_topics(topic_correlations, topic, topic_incidence_matrix, sce
 
     return  other_topics_per_year
 
-def topic_forecast(topic_incidence_matrix, topic, other_topics_per_year, level):
+def topic_forecast(topic_incidence_matrix, topic, other_topics_per_year, level, alg):
 
     def plot_topic_year(topic_year_actual,topic_year_predicted):
         plt.plot(list(topic_year_actual.keys()), list(topic_year_actual.values()), color='red')
@@ -219,14 +219,21 @@ def topic_forecast(topic_incidence_matrix, topic, other_topics_per_year, level):
 
         return mse, mae, rmse
 
-    
-    topic_year_predicted = ensemble(topic_incidence_matrix[topic], other_topics_per_year=other_topics_per_year, level=level)
-    plot_topic_year(topic_incidence_matrix[topic],topic_year_predicted)
-    evaluate(topic_incidence_matrix[topic],topic_year_predicted)
-    
-    return
+    if(alg == 'lr'):
+        topic_year_predicted = linear_regression(topic_incidence_matrix[topic], other_topics_per_year=other_topics_per_year, level=level)
+    if(alg == 'svr'):
+        topic_year_predicted = support_vector_regression(topic_incidence_matrix[topic], other_topics_per_year=other_topics_per_year, level=level)
+    if(alg == 'en'):
+        topic_year_predicted = ensemble(topic_incidence_matrix[topic], other_topics_per_year=other_topics_per_year, level=level)
+
+
+    mse, mae, rmse = evaluate(topic_incidence_matrix[topic],topic_year_predicted)
+    # plot_topic_year(topic_incidence_matrix[topic],topic_year_predicted)
+
+    return mae, rmse
 
 topic='Anthracofibrosis'
+
 scenario='highly_correlated'
 
 docs_per_year = read_documents()
@@ -235,12 +242,36 @@ docs_topic_per_year, topics, topic_incidence_matrix = generate_topic_incidence_m
 
 topic_correlations = generate_topic_correlation(topic_incidence_matrix, topic)
 
-other_topics_per_year = generate_other_topics(topic_correlations, topic, topic_incidence_matrix, scenario=scenario)
+# other_topics_per_year = generate_other_topics(topic_correlations, topic, topic_incidence_matrix, scenario=scenario)
 
-if(scenario == 'single_topic'):
-    level = 'single'
-else : level = 'multi'
+# if(scenario == 'single_topic'):
+#     level = 'single'
+# else : level = 'multi'
 
-topic_forecast(topic_incidence_matrix, topic, other_topics_per_year, level)
+# topic_forecast(topic_incidence_matrix, topic, other_topics_per_year, level, alg='lr')
+
+# plt.show()
+
+scenarios = ['single_topic','highest_correlated','highly_correlated',
+'highest_negatively_correlated','inversely_correlated','random']
+
+algs = ['lr','svr','en']
+errors_rmse = {}
+
+for alg in algs:
+    errors_rmse[alg]=[]
+    for s in scenarios:
+        other_topics_per_year = generate_other_topics(topic_correlations, topic, topic_incidence_matrix, scenario=s)
+
+        if(s == 'single_topic'):
+            level = 'single'
+        else : level = 'multi'
+
+        mae, rmse = topic_forecast(topic_incidence_matrix, topic, other_topics_per_year, level, alg)
+        errors_rmse[alg].append(rmse)
+
+plt.plot(scenarios, errors_rmse['lr'], color='red')
+plt.plot(scenarios, errors_rmse['svr'], color='blue')
+plt.plot(scenarios, errors_rmse['en'], color='black')
 
 plt.show()
